@@ -1,40 +1,35 @@
 import Foundation
 import SwiftyGPIO
 
-let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi3)
-
-func setGPIOsValue(value: Bool) {
-  gpios.forEach { (_, gpio) in
-    gpio.value = value ? 1 : 0
-  }
-}
-
-gpios.forEach { (_, gpio) in
-  gpio.direction = .OUT
-}
-
-setGPIOsValue(value: false)
+let pwms = SwiftyGPIO.hardwarePWMs(for: .RaspberryPi3)!
 
 signal(SIGINT) { _ in
-  setGPIOsValue(value: false)
-  print("Blinker Finished")
+  print("RPiPWM Finished")
+  let pwms = SwiftyGPIO.hardwarePWMs(for: .RaspberryPi3)!
+  guard let ledPWM = pwms[0]?[.P18] else {
+    fatalError()
+  }
+  ledPWM.stopPWM()
   exit(0)
 }
 
 // Physical Pin -> GPIO Mapping
 // 7 -> P4
-guard let ledGPIO = gpios[.P4] else {
+guard let ledPWM = pwms[0]?[.P18] else {
   fatalError()
 }
 
 print("""
-LED Blinker
+RPiPWM LED + Distance Detector
 
-Toggles the output on physical pin 7.
+xxx
 """)
 
+ledPWM.initPWM()
+
+ledPWM.startPWM(period: 500, duty: 50)
+
 repeat {
-  ledGPIO.value = (ledGPIO.value == 0) ? 1 : 0
-  Thread.sleep(forTimeInterval: 0.25)
+sleep(1)
 } while (true)
 
