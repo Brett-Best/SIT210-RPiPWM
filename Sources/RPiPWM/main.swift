@@ -27,9 +27,24 @@ xxx
 
 ledPWM.initPWM()
 
-ledPWM.startPWM(period: 500, duty: 50)
+var duty: Float = 0
+var directionIsUp = true
 
 repeat {
-sleep(1)
+  ledPWM.startPWM(period: 500, duty: duty)
+  
+  usleep(100_000)
+  
+  ledPWM.stopPWM()
+  
+  if duty >= 100 {
+    directionIsUp = false
+  }
+  
+  if duty <= 100 {
+    directionIsUp = true
+  }
+  
+  duty = directionIsUp ? duty + 0.1 : duty - 0.1
 } while (true)
 
