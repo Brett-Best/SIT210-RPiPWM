@@ -32,10 +32,7 @@ func distance(from pulseDuration: Double) -> Double {
 }
 
 // In seconds
-func durationBetweenTimers(start: UnsafeMutablePointer<timespec>, end: UnsafeMutablePointer<timespec>) -> Double {
-  let start = start.pointee
-  let end = end.pointee
-  
+func durationBetweenTimers(start: timespec, end: timespec) -> Double {
   var seconds: Double = Double(end.tv_sec-start.tv_sec)
   seconds = seconds + Double(end.tv_nsec - start.tv_nsec) / 1000000000.0
   
@@ -101,15 +98,15 @@ repeat {
     // NO-OP
   }
   
-  let startPulseTime: UnsafeMutablePointer<timespec>
-  clock_gettime(CLOCK_MONOTONIC, startPulseTime)
+  var startPulseTime = timespec()
+  clock_gettime(CLOCK_MONOTONIC, &startPulseTime)
   
   while gpioEcho.value == GPIOValue.high.rawValue {
     // NO-OP
   }
   
-  let endPulseTime: UnsafeMutablePointer<timespec>
-  clock_gettime(CLOCK_MONOTONIC, endPulseTime)
+  var endPulseTime = timespec()
+  clock_gettime(CLOCK_MONOTONIC, &endPulseTime)
   
   print("Distance: \(distance(from: durationBetweenTimers(start: startPulseTime, end: endPulseTime)))")
   
