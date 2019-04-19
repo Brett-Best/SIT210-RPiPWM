@@ -93,15 +93,25 @@ repeat {
   
   gpioTrigger.value = GPIOValue.low.rawValue
   
+  var attempts = 0
   while gpioEcho.value == GPIOValue.low.rawValue {
-    // NO-OP
+    usleep(10_000)
+    attempts = attempts + 1
+    if attempts > 10 {
+      continue
+    }
   }
   
   var startPulseTime = timespec()
   clock_gettime(CLOCK_MONOTONIC, &startPulseTime)
   
+  attempts = 0
   while gpioEcho.value == GPIOValue.high.rawValue {
-    // NO-OP
+    usleep(10_000)
+    attempts = attempts + 1
+    if attempts > 10 {
+      continue
+    }
   }
   
   var endPulseTime = timespec()
