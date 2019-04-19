@@ -128,7 +128,8 @@ mainloop:
       continue
     }
     
-    let adjDuty = cubic(Float(distance)/400, a: 0.0011964, b: 0.70587, c: 1.745203, d: 2.069473)*100
+    let x = Float(distance)/400*4
+    let adjDuty = cubic(x, a: 0.0011964, b: 0.70587, c: 1.745203, d: 2.069473)*100
     pwmLED.stopPWM()
     pwmLED.startPWM(period: 750, duty: max(0, min(100, adjDuty)))
     
