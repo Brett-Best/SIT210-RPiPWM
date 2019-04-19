@@ -110,7 +110,12 @@ repeat {
   let distance = DistanceMath.distance(from: DistanceMath.durationBetweenPulseTimes(start: startPulseTime, end: endPulseTime))
   print("Distance: \(distance)")
   
-  let adjDuty = cubic(Float(distance)/100, a: 0.009458672, b: 0.8190362, c: -1.028707, d: 1.224677) * 100
+  if !(0.0...400.0).contains(distance) {
+    print("Invalid distance.")
+    break
+  }
+  
+  let adjDuty = cubic(Float(distance)/400, a: 0.0011964, b: 0.70587, c: 1.745203, d: 2.069473)*100
   pwmLED.stopPWM()
   pwmLED.startPWM(period: 750, duty: max(0, min(100, adjDuty)))
   
