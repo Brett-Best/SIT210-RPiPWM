@@ -98,7 +98,7 @@ repeat {
     usleep(10_000)
     attempts = attempts + 1
     if attempts > 100 {
-      delay(1)
+      sleep(1)
       continue
     }
   }
@@ -111,7 +111,7 @@ repeat {
     usleep(10_000)
     attempts = attempts + 1
     if attempts > 100 {
-      delay(1)
+      sleep(1)
       continue
     }
   }
