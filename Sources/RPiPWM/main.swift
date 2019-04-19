@@ -100,6 +100,7 @@ mainloop:
       attempts = attempts + 1
       if attempts > 100 {
         sleep(1)
+        print("Continued from LOW while.")
         continue mainloop
       }
     }
@@ -113,6 +114,7 @@ mainloop:
       attempts = attempts + 1
       if attempts > 100 {
         sleep(1)
+        print("Continued from HIGH while.")
         continue mainloop
       }
     }
