@@ -113,8 +113,6 @@ repeat {
   let adjDuty = cubic(duty, a: 0.009458672, b: 0.8190362, c: -1.028707, d: 1.224677) * 100
   pwmLED.startPWM(period: 750, duty: max(0, min(100, adjDuty)))
   
-  sleep(1)
-  
   usleep(5000)
   
   pwmLED.stopPWM()
