@@ -87,8 +87,6 @@ print("Waiting for HC-SR04 to settle!")
 sleep(2)
 
 repeat {
-  print("Reading distance...")
-  
   gpioTrigger.value = GPIOValue.high.rawValue
   
   usleep(10) // 10 microseconds
@@ -115,7 +113,7 @@ repeat {
   let adjDuty = cubic(Float(distance)/100, a: 0.009458672, b: 0.8190362, c: -1.028707, d: 1.224677) * 100
   pwmLED.startPWM(period: 750, duty: max(0, min(100, adjDuty)))
   
-  usleep(5000)
+  usleep(100_000)
   
   pwmLED.stopPWM()
 } while (true)
