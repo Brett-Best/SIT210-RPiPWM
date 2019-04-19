@@ -97,7 +97,8 @@ repeat {
   while gpioEcho.value == GPIOValue.low.rawValue {
     usleep(10_000)
     attempts = attempts + 1
-    if attempts > 10 {
+    if attempts > 100 {
+      delay(1)
       continue
     }
   }
@@ -109,7 +110,8 @@ repeat {
   while gpioEcho.value == GPIOValue.high.rawValue {
     usleep(10_000)
     attempts = attempts + 1
-    if attempts > 10 {
+    if attempts > 100 {
+      delay(1)
       continue
     }
   }
