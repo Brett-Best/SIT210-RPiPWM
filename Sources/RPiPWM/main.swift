@@ -112,7 +112,7 @@ repeat {
   
   if !(0.0...400.0).contains(distance) {
     print("Invalid distance.")
-    break
+    continue
   }
   
   let adjDuty = cubic(Float(distance)/400, a: 0.0011964, b: 0.70587, c: 1.745203, d: 2.069473)*100
