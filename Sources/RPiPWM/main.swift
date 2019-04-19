@@ -26,17 +26,21 @@ func cubic(_ x: Float, a: Float, b: Float, c: Float, d: Float) -> Float {
   return a + b * x + c * pow(x,2) + d * pow(x,3)
 }
 
-// In centimetres
-func distance(from pulseDuration: Double) -> Double {
-  return pulseDuration * 17150
-}
-
-// In seconds
-func durationBetweenTimers(start: timespec, end: timespec) -> Double {
-  var seconds: Double = Double(end.tv_sec-start.tv_sec)
-  seconds = seconds + Double(end.tv_nsec - start.tv_nsec) / 1000000000.0
+struct DistanceMath {
+  private init() {}
   
-  return seconds
+  // In centimetres
+  static func distance(from pulseDuration: Double) -> Double {
+    return pulseDuration * 17150
+  }
+  
+  // In seconds
+  static func durationBetweenPulseTimes(start: timespec, end: timespec) -> Double {
+    var seconds: Double = Double(end.tv_sec-start.tv_sec)
+    seconds = seconds + Double(end.tv_nsec - start.tv_nsec) / 1000000000.0
+    
+    return seconds
+  }
 }
 
 enum GPIOValue: Int {
@@ -70,9 +74,6 @@ guard let gpioTrigger = gpios[.P26] else {
 guard let gpioEcho = gpios[.P21] else {
   fatalError("Unable to create gpioEcho from GPIO BCM P21")
 }
-
-var duty: Float = 0
-var directionIsUp = true
 
 pwmLED.initPWM()
 
@@ -108,65 +109,13 @@ repeat {
   var endPulseTime = timespec()
   clock_gettime(CLOCK_MONOTONIC, &endPulseTime)
   
-  print("Distance: \(distance(from: durationBetweenTimers(start: startPulseTime, end: endPulseTime)))")
+  let distance = DistanceMath.distance(from: DistanceMath.durationBetweenPulseTimes(start: startPulseTime, end: endPulseTime))
+  print("Distance: \(distance)")
   
-  let adjDuty = cubic(duty, a: 0.009458672, b: 0.8190362, c: -1.028707, d: 1.224677) * 100
+  let adjDuty = cubic(distance/100, a: 0.009458672, b: 0.8190362, c: -1.028707, d: 1.224677) * 100
   pwmLED.startPWM(period: 750, duty: max(0, min(100, adjDuty)))
   
   usleep(5000)
   
   pwmLED.stopPWM()
-  
-  if duty >= 1 {
-    directionIsUp = false
-  }
-  
-  if duty <= 0 {
-    directionIsUp = true
-  }
-  
-  duty = directionIsUp ? duty + 0.001 : duty - 0.001
-  
-  //  print(duty)
 } while (true)
-
-/*
- #!/usr/bin/python
- import RPi.GPIO as GPIO
- import time
- 
- try:
- GPIO.setmode(GPIO.BOARD) .
- 
- PIN_TRIGGER = 7 .
- PIN_ECHO = 11 .
- 
- GPIO.setup(PIN_TRIGGER, GPIO.OUT) .
- GPIO.setup(PIN_ECHO, GPIO.IN) .
- 
- GPIO.output(PIN_TRIGGER, GPIO.LOW) .
- 
- print "Waiting for sensor to settle" .
- 
- time.sleep(2) .
- 
- print "Calculating distance"
- 
- GPIO.output(PIN_TRIGGER, GPIO.HIGH) .
- 
- time.sleep(0.00001) .
- 
- GPIO.output(PIN_TRIGGER, GPIO.LOW) .
- 
- while GPIO.input(PIN_ECHO)==0:
- pulse_start_time = time.time()
- while GPIO.input(PIN_ECHO)==1:
- pulse_end_time = time.time()
- 
- pulse_duration = pulse_end_time - pulse_start_time
- distance = round(pulse_duration * 17150, 2)
- print "Distance:",distance,"cm"
- 
- finally:
- GPIO.cleanup()
- */
