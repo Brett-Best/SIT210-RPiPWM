@@ -86,50 +86,51 @@ print("Waiting for HC-SR04 to settle!")
 
 sleep(2)
 
-repeat {
-  gpioTrigger.value = GPIOValue.high.rawValue
-  
-  usleep(10) // 10 microseconds
-  
-  gpioTrigger.value = GPIOValue.low.rawValue
-  
-  var attempts = 0
-  while gpioEcho.value == GPIOValue.low.rawValue {
-    usleep(10_000)
-    attempts = attempts + 1
-    if attempts > 100 {
-      sleep(1)
+mainloop:
+  repeat {
+    gpioTrigger.value = GPIOValue.high.rawValue
+    
+    usleep(10) // 10 microseconds
+    
+    gpioTrigger.value = GPIOValue.low.rawValue
+    
+    var attempts = 0
+    while gpioEcho.value == GPIOValue.low.rawValue {
+      usleep(10_000)
+      attempts = attempts + 1
+      if attempts > 100 {
+        sleep(1)
+        continue mainloop
+      }
+    }
+    
+    var startPulseTime = timespec()
+    clock_gettime(CLOCK_MONOTONIC, &startPulseTime)
+    
+    attempts = 0
+    while gpioEcho.value == GPIOValue.high.rawValue {
+      usleep(10_000)
+      attempts = attempts + 1
+      if attempts > 100 {
+        sleep(1)
+        continue mainloop
+      }
+    }
+    
+    var endPulseTime = timespec()
+    clock_gettime(CLOCK_MONOTONIC, &endPulseTime)
+    
+    let distance = DistanceMath.distance(from: DistanceMath.durationBetweenPulseTimes(start: startPulseTime, end: endPulseTime))
+    print("Distance: \(distance)")
+    
+    if !(0.0...400.0).contains(distance) {
+      print("Invalid distance.")
       continue
     }
-  }
-  
-  var startPulseTime = timespec()
-  clock_gettime(CLOCK_MONOTONIC, &startPulseTime)
-  
-  attempts = 0
-  while gpioEcho.value == GPIOValue.high.rawValue {
-    usleep(10_000)
-    attempts = attempts + 1
-    if attempts > 100 {
-      sleep(1)
-      continue
-    }
-  }
-  
-  var endPulseTime = timespec()
-  clock_gettime(CLOCK_MONOTONIC, &endPulseTime)
-  
-  let distance = DistanceMath.distance(from: DistanceMath.durationBetweenPulseTimes(start: startPulseTime, end: endPulseTime))
-  print("Distance: \(distance)")
-  
-  if !(0.0...400.0).contains(distance) {
-    print("Invalid distance.")
-    continue
-  }
-  
-  let adjDuty = cubic(Float(distance)/400, a: 0.0011964, b: 0.70587, c: 1.745203, d: 2.069473)*100
-  pwmLED.stopPWM()
-  pwmLED.startPWM(period: 750, duty: max(0, min(100, adjDuty)))
-  
-  usleep(100_000)
+    
+    let adjDuty = cubic(Float(distance)/400, a: 0.0011964, b: 0.70587, c: 1.745203, d: 2.069473)*100
+    pwmLED.stopPWM()
+    pwmLED.startPWM(period: 750, duty: max(0, min(100, adjDuty)))
+    
+    usleep(100_000)
 } while (true)
