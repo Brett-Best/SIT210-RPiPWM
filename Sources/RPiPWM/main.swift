@@ -96,10 +96,9 @@ mainloop:
     
     var attempts = 0
     while gpioEcho.value == GPIOValue.low.rawValue {
-      usleep(10_000)
+      usleep(1_000)
       attempts = attempts + 1
-      if attempts > 100 {
-        sleep(1)
+      if attempts > 1000 {
         print("Continued from LOW while.")
         continue mainloop
       }
@@ -110,10 +109,9 @@ mainloop:
     
     attempts = 0
     while gpioEcho.value == GPIOValue.high.rawValue {
-      usleep(10_000)
+      usleep(1_000)
       attempts = attempts + 1
-      if attempts > 100 {
-        sleep(1)
+      if attempts > 1000 {
         print("Continued from HIGH while.")
         continue mainloop
       }
