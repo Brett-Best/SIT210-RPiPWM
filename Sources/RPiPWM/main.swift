@@ -128,7 +128,7 @@ mainloop:
       continue
     }
     
-    let fullDistance = 30
+    let fullDistance: Float = 30
     let x = Float(distance)/fullDistance
     let adjDuty = cubic(x, a: 0.0011964, b: 0.70587, c: 1.745203, d: 2.069473)*100
     pwmLED.stopPWM()
